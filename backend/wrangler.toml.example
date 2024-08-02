@@ -1,0 +1,6 @@
+name = "backend"
+compatibility_date = "2024-07-24"
+
+[vars]
+DATABASE_URL="prisma_accelerate_url"
+JWT_SECRET="Jwt_Secret"

@@ -1,0 +1,95 @@
+import { Hono } from "hono";
+import { AppType } from "../type";
+import { PrismaClient } from "@prisma/client/edge";
+import { withAccelerate } from "@prisma/extension-accelerate";
+import { sign } from "hono/jwt";
+import { signinInput, signupInput } from "@iamshm/medium-common";
+
+const userRouter = new Hono<AppType>();
+
+userRouter.post("/signup", async (c) => {
+  const prisma = new PrismaClient({
+    datasourceUrl: c.env.DATABASE_URL,
+  }).$extends(withAccelerate());
+
+  const body = await c.req.json();
+
+  const { success } = signupInput.safeParse(body);
+
+  if (!success) {
+    c.status(411);
+    return c.json({
+      message: "Invalid",
+    });
+  }
+
+  try {
+    const user = await prisma.user.create({
+      data: {
+        name: body.name,
+        email: body.email,
+        password: body.password,
+      },
+    });
+
+    const token = await sign(
+      {
+        id: user.id,
+      },
+      c.env.JWT_SECRET,
+    );
+
+    return c.json({
+      token,
+    });
+  } catch (error) {
+    c.status(411);
+    return c.json({
+      message: "Invalid",
+    });
+  }
+});
+
+userRouter.post("/signin", async (c) => {
+  const body = await c.req.json();
+  const { success } = signinInput.safeParse(body);
+
+  if (!success) {
+    c.status(411);
+    return c.json({
+      message: "Invalid",
+    });
+  }
+
+  const prisma = new PrismaClient({
+    datasourceUrl: c.env.DATABASE_URL,
+  }).$extends(withAccelerate());
+
+  const user = await prisma.user.findUnique({
+    where: {
+      email: body.email,
+      password: body.password,
+    },
+  });
+
+  if (!user) {
+    c.status(403);
+
+    return c.json({
+      msg: "User not found",
+    });
+  }
+
+  const token = await sign(
+    {
+      id: user.id,
+    },
+    c.env.JWT_SECRET,
+  );
+
+  return c.json({
+    token,
+  });
+});
+
+export default userRouter;
