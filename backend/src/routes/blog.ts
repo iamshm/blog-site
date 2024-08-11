@@ -1,14 +1,13 @@
-import { Hono } from "hono";
-import { AppType } from "../type";
-import { verify } from "hono/jwt";
-import { PrismaClient } from "@prisma/client/edge";
-import { withAccelerate } from "@prisma/extension-accelerate";
 import {
   createBlogInput,
-  updateBlogInput,
   deleteBlogInput,
-  signupInput,
+  updateBlogInput,
 } from "@iamshm/medium-common";
+import { PrismaClient } from "@prisma/client/edge";
+import { withAccelerate } from "@prisma/extension-accelerate";
+import { Hono } from "hono";
+import { verify } from "hono/jwt";
+import { AppType } from "../type";
 
 declare module "hono" {
   interface HonoRequest {
@@ -58,6 +57,7 @@ blogRouter.post("/", async (c) => {
       title: body.title,
       content: body.content,
       authorId,
+      imageUrl: body.image,
     },
   });
 
@@ -140,7 +140,16 @@ blogRouter.get("/", async (c) => {
     datasourceUrl: c.env.DATABASE_URL,
   }).$extends(withAccelerate());
 
-  const blogs = await prisma.post.findMany({});
+  const blogs = await prisma.post.findMany({
+    where: {
+      published: true,
+    },
+    include: {
+      author: {
+        select: { name: true },
+      },
+    },
+  });
 
   return c.json({
     data: blogs,
@@ -175,4 +184,5 @@ blogRouter.delete("/", async (c) => {
     msg: "Deleted",
   });
 });
+
 export default blogRouter;
