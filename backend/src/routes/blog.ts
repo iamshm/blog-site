@@ -110,6 +110,11 @@ blogRouter.get("/one/:id", async (c) => {
     where: {
       id: blogId,
     },
+    include: {
+      author: {
+        select: { name: true },
+      },
+    },
   });
 
   return c.json({
@@ -124,13 +129,29 @@ blogRouter.get("/user", async (c) => {
     datasourceUrl: c.env.DATABASE_URL,
   }).$extends(withAccelerate());
 
+  const user = await prisma.user.findUnique({
+    where: {
+      id: authorId,
+    },
+    select: {
+      id: true,
+      name: true,
+    },
+  });
+
   const blogs = await prisma.post.findMany({
     where: {
       authorId,
     },
+    include: {
+      author: {
+        select: { name: true },
+      },
+    },
   });
 
   return c.json({
+    user,
     data: blogs,
   });
 });

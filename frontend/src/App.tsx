@@ -6,9 +6,11 @@ import Blog from "./screens/Blog";
 import Dashboard from "./screens/Dashboard";
 import Signin from "./screens/Signin";
 import Signup from "./screens/Signup";
+import Profile from "./screens/Profile";
 
 const App = () => {
   const { hasToken } = useAuthenticated();
+
   return (
     <Routes>
       <Route
@@ -27,7 +29,7 @@ const App = () => {
 
         <Route path="/blog" element={<Blog />} />
 
-        <Route path="/profile" element={<div>My Profile</div>} />
+        <Route path="/profile" element={<Profile />} />
       </Route>
     </Routes>
   );

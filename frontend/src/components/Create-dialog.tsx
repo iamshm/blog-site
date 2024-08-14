@@ -47,7 +47,6 @@ const CreateDialog = () => {
         throw new Error("Empty inputs");
 
       const image = await fetchImages(formData.title);
-      console.log(image.data);
 
       await createPost({
         ...formData,
@@ -57,6 +56,8 @@ const CreateDialog = () => {
       setFormData(initialValues);
       setIsOpen(false);
       toast.success("Blog added successfully");
+
+      window.location.reload();
     } catch (error) {
       toast.error("Blog creation failed");
     }
@@ -67,9 +68,9 @@ const CreateDialog = () => {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <button>Create</button>
+        <Button>Create</Button>
       </DialogTrigger>
-      <DialogContent className="bg-black min-w-[700px]">
+      <DialogContent className="bg-black min-w-[700px] max-sm:min-w-[200px]">
         <DialogHeader>
           <DialogTitle className="text-white text-2xl text-center mb-4">
             Write a blog
@@ -91,7 +92,7 @@ const CreateDialog = () => {
           />
         </DialogDescription>
 
-        <DialogFooter>
+        <DialogFooter className="max-sm:w-full flex-row gap-4">
           <Button
             variant="secondary"
             onClick={() => {

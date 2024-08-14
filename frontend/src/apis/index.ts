@@ -1,10 +1,9 @@
 import axios from "axios";
 
-const baseUrl = "https://backend.surajhm.workers.dev/api/v1";
-// const baseUrlLocal = "http://localhost:53853/api/v1";
+const baseURL = import.meta.env.VITE_API_ENDPOINT;
 
 const BlogApiHandler = axios.create({
-  baseURL: baseUrl,
+  baseURL,
 });
 
 export const setAuthorizationToken = (token: string) => {
